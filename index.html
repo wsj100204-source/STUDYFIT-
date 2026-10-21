@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6658d3">
+  <meta name="description" content="집중 타이머, 공부 기록, 할 일과 시험 일정을 한곳에서 관리하는 학생용 공부 앱">
+  <link rel="manifest" href="manifest.json">
+  <title>공부핏 | 오늘의 공부를 쌓다</title>
+  <style>
+    :root{--bg:#f6f5fc;--card:#fff;--ink:#24213b;--muted:#77758d;--purple:#6658d3;--pale:#eeebff;--line:#e8e5f2;--green:#16845b;--red:#c14d60}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select{font:inherit} button{cursor:pointer;border:0;border-radius:13px;padding:12px 15px;font-weight:700}
+    .wrap{max-width:1050px;margin:auto;padding:22px 16px 44px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+    .brand{display:flex;align-items:center;gap:11px}.logo{width:45px;height:45px;border-radius:15px;background:var(--purple);color:#fff;display:grid;place-items:center;font-size:23px;font-weight:900}
+    h1{font-size:23px;margin:0} .sub{color:var(--muted);font-size:13px;margin-top:3px}.pill{background:var(--pale);color:var(--purple)}
+    .hero{background:linear-gradient(130deg,#6658d3,#897be8);color:#fff;border-radius:24px;padding:23px;margin-bottom:17px;display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center}
+    .hero h2{margin:7px 0;font-size:25px}.hero p{color:#e8e4ff;margin:0}.stats{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}.stat{background:#ffffff20;border-radius:14px;padding:11px 13px;min-width:115px}.stat small{display:block;color:#e5e1ff}.stat strong{display:block;font-size:20px;margin-top:4px}
+    .timer{text-align:center;background:#ffffff18;border:1px solid #ffffff35;border-radius:20px;padding:17px}.timer-label{font-size:13px;color:#ece9ff}.clock{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;margin:7px 0}.timer-controls{display:flex;justify-content:center;gap:8px}.primary{background:var(--purple);color:white}.light{background:var(--pale);color:var(--purple)}.ghost{background:#ffffff20;color:white;border:1px solid #ffffff40}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:19px;min-width:0}.card h3{margin:0 0 14px;font-size:17px}.row{display:flex;gap:9px;align-items:center}.row>*{min-width:0}.row input,.row select,.full-input{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px;color:var(--ink)}
+    .tasklist,.loglist{display:grid;gap:9px;margin-top:13px}.task{display:flex;align-items:center;gap:9px;padding:10px;border-radius:12px;background:#faf9ff}.task span{flex:1;overflow-wrap:anywhere}.task.done span{text-decoration:line-through;color:var(--muted)}.task button{padding:5px 9px;background:#f4e9ed;color:var(--red)}
+    .progress{height:9px;border-radius:99px;background:#eeecf5;overflow:hidden;margin:10px 0}.progress div{height:100%;background:var(--purple);width:0;transition:width .2s}
+    .log{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.log:last-child{border-bottom:0}.log small{color:var(--muted)}
+    .examline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.examline input{flex:1;min-width:120px}.exam-count{margin-top:13px;padding:13px;background:#faf9ff;border-radius:13px}.exam-count strong{color:var(--purple);font-size:20px}
+    .ad-slot{margin-top:16px;border:1px dashed #c9c4e5;border-radius:15px;padding:14px;text-align:center;color:var(--muted);font-size:12px;background:#fff}
+    footer{text-align:center;color:var(--muted);font-size:12px;padding:22px 4px 0;line-height:1.7}.notice{min-height:20px;color:var(--green);font-size:13px;margin-top:8px}
+    @media(max-width:700px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.wrap{padding:14px 12px 30px}.hero h2{font-size:22px}.clock{font-size:39px}.top{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">공</div><div><h1>공부핏</h1><div class="sub">오늘의 공부를 차곡차곡</div></div></div>
+    <button id="installBtn" class="pill" hidden>앱 설치</button>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="sub" style="color:#e7e2ff">오늘도 한 걸음씩</div>
+      <h2>집중은 짧게 시작하고,<br>성장은 기록으로 남기자.</h2>
+      <p>오늘 공부한 시간을 쌓아 보세요.</p>
+      <div class="stats">
+        <div class="stat"><small>오늘 공부</small><strong id="todayTime">0분</strong></div>
+        <div class="stat"><small>완료한 할 일</small><strong id="doneCount">0개</strong></div>
+        <div class="stat"><small>누적 공부</small><strong id="totalTime">0분</strong></div>
+      </div>
+    </div>
+    <div class="timer">
+      <div class="timer-label">집중 타이머 · 25분</div>
+      <div class="clock" id="clock">25:00</div>
+      <div class="timer-controls">
+        <button class="ghost" id="startBtn">시작</button>
+        <button class="ghost" id="resetBtn">초기화</button>
+      </div>
+      <div class="timer-label" id="timerStatus" style="margin-top:10px">시작 버튼을 눌러 집중해 봐요.</div>
+    </div>
+  </section>
+
+  <main class="grid">
+    <section class="card">
+      <h3>✅ 오늘의 할 일</h3>
+      <form id="taskForm" class="row"><input id="taskInput" maxlength="100" placeholder="예: 수학 문제 10개 풀기" required><button class="primary">추가</button></form>
+      <div class="progress"><div id="taskProgress"></div></div>
+      <div class="sub" id="taskSummary">할 일을 추가해 보세요.</div>
+      <div class="tasklist" id="taskList"></div>
+    </section>
+
+    <section class="card">
+      <h3>📅 시험 D-day</h3>
+      <form id="examForm" class="examline">
+        <input id="examName" class="full-input" maxlength="60" placeholder="예: 기말고사" required>
+        <input id="examDate" class="full-input" type="date" required>
+        <button class="primary">저장</button>
+      </form>
+      <div id="examList"></div>
+      <div class="notice" id="notice" role="status"></div>
+    </section>
+
+    <section class="card">
+      <h3>📈 최근 공부 기록</h3>
+      <div id="studyLogs" class="loglist"></div>
+      <button id="clearLogs" class="light" style="margin-top:12px">공부 기록 초기화</button>
+    </section>
+
+    <section class="card">
+      <h3>🎯 나의 목표</h3>
+      <label class="sub" for="goalInput">하루 목표 공부 시간 (분)</label>
+      <div class="row" style="margin-top:7px"><input id="goalInput" type="number" min="1" max="1440" value="120"><button class="primary" id="saveGoal">목표 저장</button></div>
+      <div class="progress"><div id="goalProgress"></div></div>
+      <div class="sub" id="goalSummary">목표를 설정해 보세요.</div>
+      <div class="ad-slot">광고 영역 · 서비스가 성장하고 광고 승인을 받은 뒤 광고를 배치할 수 있어요.</div>
+    </section>
+  </main>
+  <footer>공부핏은 공부 습관 관리를 돕는 도구입니다. 기록은 현재 기기의 브라우저에 저장됩니다.<br>중요한 기록은 기기 변경이나 브라우저 데이터 삭제 전에 별도로 백업하세요.</footer>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const key = 'studyfit-v1';
+  const today = () => new Date().toLocaleDateString('sv-SE');
+  const defaultData = () => ({tasks:[], exams:[], logs:[], goal:120});
+  let data;
+  try { data = {...defaultData(), ...JSON.parse(localStorage.getItem(key) || '{}')}; }
+  catch { data = defaultData(); }
+  const save = () => localStorage.setItem(key, JSON.stringify(data));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const todayMinutes = () => data.logs.filter(x=>x.date===today()).reduce((s,x)=>s+x.minutes,0);
+  const totalMinutes = () => data.logs.reduce((s,x)=>s+x.minutes,0);
+  let remaining = 25*60, running = false, interval = null, sessionStart = null;
+  const fmt = n => `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
+  function render() {
+    $('todayTime').textContent = `${todayMinutes()}분`;
+    $('totalTime').textContent = `${totalMinutes()}분`;
+    const done = data.tasks.filter(t=>t.done).length;
+    $('doneCount').textContent = `${done}개`;
+    $('taskSummary').textContent = data.tasks.length ? `${done}/${data.tasks.length}개 완료` : '할 일을 추가해 보세요.';
+    $('taskProgress').style.width = `${data.tasks.length?done/data.tasks.length*100:0}%`;
+    $('taskList').innerHTML = data.tasks.map(t=>`<div class="task ${t.done?'done':''}"><input type="checkbox" data-task="${t.id}" ${t.done?'checked':''} aria-label="완료"><span>${esc(t.text)}</span><button data-delete="${t.id}" aria-label="삭제">삭제</button></div>`).join('');
+    $('examList').innerHTML = data.exams.length ? data.exams.map(e=>{const d=Math.ceil((new Date(e.date+'T00:00:00')-new Date(new Date().toDateString()))/86400000);const label=d>0?`D-${d}`:d===0?'D-Day':`D+${Math.abs(d)}`;return `<div class="exam-count"><div>${esc(e.name)}</div><strong>${label}</strong> <small>${esc(e.date)}</small> <button class="light" data-exam-delete="${e.id}" style="float:right;padding:5px 9px">삭제</button></div>`}).join('') : '<div class="sub" style="margin-top:13px">시험 일정을 저장하면 D-day가 표시돼요.</div>';
+    $('studyLogs').innerHTML = data.logs.slice(-7).reverse().map(l=>`<div class="log"><div>${esc(l.date)}<br><small>집중 세션</small></div><strong>${l.minutes}분</strong></div>`).join('') || '<div class="sub">집중 세션을 완료하면 기록돼요.</div>';
+    $('goalInput').value = data.goal;
+    const pct = Math.min(100, Math.round(todayMinutes()/Math.max(1,data.goal)*100));
+    $('goalProgress').style.width = pct+'%';
+    $('goalSummary').textContent = `오늘 ${todayMinutes()}분 / 목표 ${data.goal}분 · ${pct}% 달성`;
+  }
+  $('taskForm').addEventListener('submit', e=>{e.preventDefault();const text=$('taskInput').value.trim();if(!text)return;data.tasks.push({id:Date.now(),text,done:false});$('taskInput').value='';save();render();});
+  $('taskList').addEventListener('change', e=>{if(e.target.dataset.task){const t=data.tasks.find(x=>x.id==e.target.dataset.task);if(t)t.done=e.target.checked;save();render();}});
+  $('taskList').addEventListener('click', e=>{const id=e.target.dataset.delete;if(id){data.tasks=data.tasks.filter(t=>t.id!=id);save();render();}});
+  $('examForm').addEventListener('submit', e=>{e.preventDefault();const name=$('examName').value.trim(),date=$('examDate').value;if(!name||!date)return;data.exams.push({id:Date.now(),name,date});$('examName').value='';$('examDate').value='';$('notice').textContent='시험 일정을 저장했어요.';save();render();});
+  $('examList').addEventListener('click',e=>{const id=e.target.dataset.examDelete;if(id){data.exams=data.exams.filter(x=>x.id!=id);save();render();}});
+  $('saveGoal').addEventListener('click',()=>{const n=Number($('goalInput').value);if(!Number.isFinite(n)||n<1||n>1440){$('notice').textContent='목표는 1~1440분으로 입력해 주세요.';return;}data.goal=Math.round(n);save();render();$('notice').textContent='목표를 저장했어요.';});
+  $('clearLogs').addEventListener('click',()=>{if(confirm('공부 기록을 모두 삭제할까요?')){data.logs=[];save();render();}});
+  function finishSession(){clearInterval(interval);interval=null;running=false;remaining=0;$('clock').textContent=fmt(0);$('startBtn').textContent='시작';$('timerStatus').textContent='집중 세션 완료! 25분을 기록했어요.';data.logs.push({date:today(),minutes:25,at:Date.now()});save();render();if('Notification'in window&&Notification.permission==='granted')new Notification('공부핏',{body:'집중 세션 완료! 25분 공부를 기록했어요.'});}
+  $('startBtn').addEventListener('click',async()=>{if(running){clearInterval(interval);interval=null;running=false;$('startBtn').textContent='계속';$('timerStatus').textContent='일시 정지 중';return;}if(remaining<=0)remaining=25*60;running=true;sessionStart=Date.now();$('startBtn').textContent='일시 정지';$('timerStatus').textContent='집중 중이에요. 화이팅!';if('Notification'in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});interval=setInterval(()=>{remaining=Math.max(0,remaining-1);$('clock').textContent=fmt(remaining);if(remaining===0)finishSession();},1000);});
+  $('resetBtn').addEventListener('click',()=>{clearInterval(interval);interval=null;running=false;remaining=25*60;$('clock').textContent=fmt(remaining);$('startBtn').textContent='시작';$('timerStatus').textContent='시작 버튼을 눌러 집중해 봐요.';});
+  let installPrompt;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').hidden=false;});
+  $('installBtn').addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').hidden=true;});
+  if('serviceWorker'in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  render();
+})();
+</script>
+</body>
+</html>
